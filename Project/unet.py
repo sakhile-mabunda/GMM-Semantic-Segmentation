@@ -1,10 +1,3 @@
-"""
-Unet class.
-
-Library:	Tensowflow 2.2.0, pyTorch 1.5.1
-Author:		Ian Yoo
-Email:		thyoostar@gmail.com
-"""
 from __future__ import absolute_import, division, print_function
 
 import torch
@@ -144,76 +137,9 @@ cfgs = {
            'U', 256, 256, 'U', 128, 128, 'U', 64, 64]
 }
 
-class Unet(torch.nn.Module):
-
-    def __init__(self, n_classes, cfg, batch_norm=True):
-        super(Unet, self).__init__()
-        self.features = self._make_layers(cfg, batch_norm)
-        self.classifier = nn.Sequential(nn.Conv2d(cfg[-1], n_classes, kernel_size=1), nn.Sigmoid())
-
-        self._initialize_weights()
-
-
-    def _make_layers(self, cfg, batch_norm):
-        layers = []
-        in_channels = 3
-        for v in cfg:
-            if v == 'M':
-                layers += [nn.MaxPool2d(kernel_size=2, stride=2)]
-            elif v == 'U':
-                layers += [nn.ConvTranspose2d(in_channels, int(in_channels / 2), kernel_size=4,
-                                               stride=2, bias=False)]
-            else:
-                conv2d = nn.Conv2d(in_channels, v, kernel_size=3, padding=1)
-                if batch_norm:
-                    layers += [conv2d, nn.BatchNorm2d(v), nn.ReLU(inplace=True)]
-                else:
-                    layers += [conv2d, nn.ReLU(inplace=True)]
-                in_channels = v
-        return nn.Sequential(*layers)
-
-
-
-    def _initialize_weights(self):
-        for m in self.modules():
-            if isinstance(m, nn.Conv2d):
-                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
-                if m.bias is not None:
-                    nn.init.constant_(m.bias, 0)
-            elif isinstance(m, nn.BatchNorm2d):
-                nn.init.constant_(m.weight, 1)
-                nn.init.constant_(m.bias, 0)
-
-    def forward(self, x):
-        o = x
-        size_features = len(self.features)
-        copys = []
-        for i in range(size_features):
-            o = self.features[i](o)
-            if isinstance(self.features[i], nn.ConvTranspose2d):
-                copy = copys.pop()
-                o = o[:, :, 1:1 + copy.size()[2], 1:1 + copy.size()[3]]
-                o = torch.cat([o, copy], dim=1)
-            if i + 1 >= size_features:
-                continue
-            if isinstance(self.features[i+1], nn.MaxPool2d):
-                copys += [o]
-
-        cx = int((o.shape[3] - x.shape[3]) / 2)
-        cy = int((o.shape[2] - x.shape[2]) / 2)
-        o = o[:, :, cy:cy + x.shape[2], cx:cx + x.shape[3]]
-        o = self.classifier(o)
-
-        return o
-
-
 
 def unet_vgg16(n_classes, batch_size, pretrained=False, fixed_feature=True):
     batch_norm = False if batch_size == 1 else True
     vgg = vgg_16(batch_norm, pretrained, fixed_feature)
     return UnetWithEncoder(n_classes, vgg, batch_norm)
-
-def unet(n_classes, batch_size):
-    batch_norm = False if batch_size == 1 else True
-    return Unet(n_classes, cfgs['A'], batch_norm)
 

@@ -1,10 +1,4 @@
-"""
-Dataset class.
 
-Library:	Tensowflow 2.2.0, pyTorch 1.5.1, OpenCV-Python 4.1.1.26
-Author:		Ian Yoo
-Email:		thyoostar@gmail.com
-"""
 from __future__ import absolute_import, print_function, division
 import os
 import numpy as np
@@ -60,6 +54,9 @@ class SegmentationDataset(Dataset):
 			idx = idx.tolist()
 
 		im = cv2.imread(self.pairs_dir[idx][0], flags=cv2.IMREAD_COLOR)
+		im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
+
+
 		lbl = cv2.imread(self.pairs_dir[idx][1], flags=cv2.IMREAD_GRAYSCALE)
 	
 		t, lbl = cv2.threshold(lbl, 125, 1, cv2.THRESH_BINARY)
@@ -81,6 +78,7 @@ class SegmentationDataset(Dataset):
 			return_value = True
 			for im_fn, seg_fn in tqdm(self.pairs_dir, ncols=TQDM_COLS):
 				img = cv2.imread(im_fn)
+				img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 				seg = cv2.imread(seg_fn)
 				t, seg = cv2.threshold(seg, 125, 1, cv2.THRESH_BINARY)
 

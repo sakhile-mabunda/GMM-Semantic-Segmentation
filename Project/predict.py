@@ -1,11 +1,3 @@
-"""
-The predict functions.
-The main function is to write output on the color from the gray labeled image.
-
-Library:	Tensowflow 2.2.0, pyTorch 1.5.1, OpenCV-Python 4.1.1.26
-Author:		Ian Yoo
-Email:		thyoostar@gmail.com
-"""
 from __future__ import absolute_import, division, print_function
 
 import random

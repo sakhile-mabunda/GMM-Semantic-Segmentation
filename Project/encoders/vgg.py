@@ -1,10 +1,4 @@
-"""
-Vgg16 model Customized from Torchvision.
 
-Library:	Tensowflow 2.2.0, pyTorch 1.5.1
-Author:		Ian Yoo
-Email:		thyoostar@gmail.com
-"""
 from __future__ import absolute_import, division
 from .squeeze_extractor import *
 from torch import nn

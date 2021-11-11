@@ -1,7 +1,7 @@
 from torchvision import transforms
 
 from data_loader.segmentation_dataset import SegmentationDataset
-from data_loader.transform import Rescale, ToTensor
+from data_loader.transform import Rescale, RandomHorizontalFlip,ToTensor
 from trainer import Trainer
 from predict import *
 from unet import *
@@ -10,8 +10,11 @@ from util.logger import Logger
 
 
 train_images = r'dataset/cityspaces/images/train'
+val_images = r'dataset/cityspaces/images/val'
 test_images = r'dataset/cityspaces/images/test'
+
 train_labled = r'dataset/cityspaces/labeled/train'
+val_labeled = r'dataset/cityspaces/labeled/val'
 test_labeled = r'dataset/cityspaces/labeled/test'
 
 if __name__ == '__main__':
@@ -19,7 +22,7 @@ if __name__ == '__main__':
     device = 'cuda'
     batch_size = 4
     n_classes = 2
-    num_epochs = 20
+    num_epochs = 100
     image_axis_minimum_size = 200
     pretrained = True
     fixed_feature = False
@@ -29,11 +32,15 @@ if __name__ == '__main__':
     ### Loader
     compose = transforms.Compose([
         Rescale(image_axis_minimum_size),
+        RandomHorizontalFlip(0.7),
         ToTensor()
          ])
 
     train_datasets = SegmentationDataset(train_images, train_labled, n_classes, compose)
     train_loader = torch.utils.data.DataLoader(train_datasets, batch_size=batch_size, shuffle=True, drop_last=True)
+
+    val_datasets = SegmentationDataset(val_images, val_labeled, n_classes, compose)
+    val_loader = torch.utils.data.DataLoader(val_datasets, batch_size=batch_size, shuffle=True, drop_last=True)
 
     test_datasets = SegmentationDataset(test_images, test_labeled, n_classes, compose)
     test_loader = torch.utils.data.DataLoader(test_datasets, batch_size=batch_size, shuffle=True, drop_last=True)
@@ -63,7 +70,7 @@ if __name__ == '__main__':
 
     ### Train
     #scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.1)
-    trainer = Trainer(model, optimizer, logger, num_epochs, train_loader, test_loader)
+    trainer = Trainer(model, optimizer, logger, num_epochs, train_loader, val_loader)
     trainer.train()
 
 

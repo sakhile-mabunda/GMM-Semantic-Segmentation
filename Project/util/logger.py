@@ -1,11 +1,4 @@
-"""
-The logger class. This class write logs to Tensorboard mostly.
-Also, it can save images and will be stored in '.runs' path
 
-Library:	Tensowflow 2.2.0, pyTorch 1.5.1
-Author:		Ian Yoo
-Email:		thyoostar@gmail.com
-"""
 from __future__ import absolute_import, division, print_function
 
 import os

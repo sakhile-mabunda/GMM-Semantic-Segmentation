@@ -1,10 +1,4 @@
-"""
-Validation functions. Follow functions are able to get scalar values for the validation.
 
-Library:	Tensowflow 2.2.0, pyTorch 1.5.1
-Author:		Ian Yoo
-Email:		thyoostar@gmail.com
-"""
 from __future__ import absolute_import, division, print_function
 
 import numpy as np
